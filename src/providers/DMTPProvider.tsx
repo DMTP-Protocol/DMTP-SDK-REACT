@@ -27,11 +27,13 @@ interface DMTPContextProps {
     >
   ]
   APIKey: string
+  isShowSNSState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 }
-export const defaultDMTPContext: DMTPContextProps = {
+const defaultDMTPContext: DMTPContextProps = {
   dmtpKeyPairState: [null, () => {}],
   signatureState: [null, () => {}],
-  APIKey: ''
+  APIKey: '',
+  isShowSNSState: [false, () => {}]
 }
 const DMTPContext = React.createContext<DMTPContextProps>(defaultDMTPContext)
 
@@ -52,16 +54,21 @@ export const DMTPProvider = ({
     message: string
   } | null>(null)
 
+  const isShowSNSState = useState<boolean>(false)
+
   return (
     <DMTPContext.Provider
       value={{
         dmtpKeyPairState,
         APIKey,
-        signatureState
+        signatureState,
+        isShowSNSState
       }}
     >
       {children}
-      <DmtpSNS text='DMTP SNS : Link Telegram , Discord' />
+      {isShowSNSState[0] && (
+        <DmtpSNS text='DMTP SNS : Link Telegram , Discord' />
+      )}
     </DMTPContext.Provider>
   )
 }

@@ -1,18 +1,21 @@
 import { useContext, useEffect, useState } from 'react'
-import { KeyPairDMTP } from '../core'
+import { KeyPairDMTP, MessageDMTP } from '../core'
 import DMTPContext from '../providers/DMTPProvider'
 import ApiServices from '../services/api'
 import { ethers } from 'ethers'
 const getOrCreateDMTPKeyPair = async ({
   setDMTPKeyPair,
   APIKey,
-  signMessageAsync
+  signMessageAsync,
+  signatureState
 }: any) => {
   try {
     try {
+      const [, setSignatureData] = signatureState
+
       const { sign, address } = await signMessageAsync()
 
-      const res = await ApiServices.getKeyPair(APIKey, `${sign}`, address)
+      const res = await ApiServices.getKeyPair(APIKey, address)
       const result = res.data.data
       if (result) {
         const { private_key, public_key } = result as any
@@ -39,6 +42,10 @@ const getOrCreateDMTPKeyPair = async ({
           publicKey: keyPair.DMTP_publicKey
         })
       }
+      setSignatureData({
+        signature: sign,
+        message: address
+      })
     } catch (error) {}
   } catch (err) {
     console.error(err)
@@ -81,7 +88,7 @@ const useDMTPKeyPair = (existDMTPPrivateKey?: string) => {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { dmtpKeyPairState, APIKey } = context
+  const { dmtpKeyPairState, APIKey, signatureState } = context
   const [dmtpKeyPair, setDMTPKeyPair] = dmtpKeyPairState
 
   const { signMessageAsync } = useSignMessage() as any
@@ -103,15 +110,23 @@ const useDMTPKeyPair = (existDMTPPrivateKey?: string) => {
         setDMTPKeyPair,
         APIKey,
         wallet_address: `${address}`.toLowerCase(),
-        signMessageAsync
+        signMessageAsync,
+        signatureState
       })
   }
 }
 
 const useSNS = () => {
+  const context = useContext(DMTPContext)
+  if (context === undefined) {
+    throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
+  }
+
+  const { isShowSNSState } = context
+  const [, setIsShowSNS] = isShowSNSState
   return {
-    show: () => {},
-    hide: () => {},
+    show: () => setIsShowSNS(true),
+    hide: () => setIsShowSNS(false),
     snsData: {
       discord: {
         id: '123456789'
@@ -129,21 +144,45 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { dmtpKeyPairState, APIKey } = context
+  const { dmtpKeyPairState, APIKey,signatureState } = context
   const [dmtpKeyPair] = dmtpKeyPairState
-  return (message: string, to_address: string) => {
+  const [signatureData] = signatureState
+  return async (message: string, to_address: string) => {
     try {
-      console.log(
-        `Call API to get public key of ${to_address} with APIKey: ${APIKey}`
-      )
-      console.log(`Call API to get room id with APIKey: ${APIKey}`)
-      console.log(
-        `Encrypt message with public key of ${to_address} and from DMTPPrivateKey: ${dmtpKeyPair?.privateKey}`
-      )
-      console.log(`Call API to send encrypt message: ${message} to room id`)
-      onSuccess && onSuccess()
+      const res = await ApiServices.getKeyPair(APIKey, to_address)
+      const result = res.data.data
+      if (result) {
+        const { public_key } = result as any
+        if (dmtpKeyPair?.privateKey) {
+          const sharedKey = KeyPairDMTP.getSharedKey(
+            dmtpKeyPair.privateKey,
+            public_key
+          )
+          const messageDataEncrypt = MessageDMTP.encryptMessage(
+            {
+              message
+            },
+            sharedKey
+          )
+          if (signatureData) {
+            const resSendMessage = await ApiServices.sendMessage(
+              {
+                message: messageDataEncrypt,
+                to_address
+              },
+              APIKey,
+              `${signatureData.signature}`,
+              `${signatureData.message}`
+            )
+          if (onSuccess) onSuccess(resSendMessage.data.data)
+          }else throw new Error(`useDMTPKeyPair before send message`)
+         
+        } else throw new Error(`useDMTPKeyPair before send message`)
+      } else {
+        throw new Error(`${to_address} is not registered`)
+      }
     } catch (error) {
-      onError && onError(error)
+      if (onError) onError(error)
     }
   }
 }

@@ -54,13 +54,12 @@ const ApiServices = {
         api_key
       }
     }),
-  getKeyPair: (api_key: string, signature: string, message: string) =>
+  getKeyPair: (api_key: string,  address: string) =>
     AxiosGet('key-pair', {
       headers: {
-        signature,
-        message,
         api_key
-      }
+      },
+      params: { address }
     }),
   getSNS: (api_key: string, signature: string, message: string) =>
     AxiosGet('sns', {
