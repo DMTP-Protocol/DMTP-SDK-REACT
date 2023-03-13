@@ -8,6 +8,11 @@ const App = () => {
   const sendMessage = useSendMessage()
   const { show, hide } = useSNS()
 
+  const [message, setMessage] = React.useState('Hi')
+  const [toAddress, setToAddress] = React.useState(
+    '0x62636ffd17bb80b1a7c177e5f45d774a1ee0d228'
+  )
+
   return (
     <div
       style={{
@@ -21,9 +26,17 @@ const App = () => {
       <button onClick={() => getDMTPKeyPair()}>getDMTPKeyPair</button>
       <p />
       <h3>useSendMessage</h3>
-      <input placeholder='Enter your message' />
-      <input placeholder='To address' />
-      <button onClick={() => sendMessage('test', '0x0000000')}>
+      <input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder='Enter your message'
+      />
+      <input
+        value={toAddress}
+        onChange={(e) => setToAddress(e.target.value)}
+        placeholder='To address'
+      />
+      <button onClick={() => sendMessage(message, toAddress)}>
         Send Message
       </button>
       <p />

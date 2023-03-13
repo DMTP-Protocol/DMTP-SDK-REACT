@@ -54,7 +54,7 @@ const ApiServices = {
         api_key
       }
     }),
-  getKeyPair: (api_key: string,  address: string) =>
+  getKeyPair: (api_key: string, address: string) =>
     AxiosGet('key-pair', {
       headers: {
         api_key
@@ -68,7 +68,26 @@ const ApiServices = {
         message,
         api_key
       }
-    })
+    }),
+  verifyTelegram: (
+    api_key: string,
+    signature: string,
+    message: string,
+    otp: string
+  ) =>
+    AxiosPost(
+      'verify-telegram',
+      {
+        otp
+      },
+      {
+        headers: {
+          signature,
+          message,
+          api_key
+        }
+      }
+    )
 }
 
 export default ApiServices

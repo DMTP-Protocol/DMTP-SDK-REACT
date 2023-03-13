@@ -1,8 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { KeyPairDMTP, MessageDMTP } from '../core'
 import DMTPContext from '../providers/DMTPProvider'
 import ApiServices from '../services/api'
+import { io } from 'socket.io-client'
 import { ethers } from 'ethers'
+
 const getOrCreateDMTPKeyPair = async ({
   setDMTPKeyPair,
   APIKey,
@@ -122,19 +124,133 @@ const useSNS = () => {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { isShowSNSState } = context
+  const { isShowSNSState, APIKey, signatureState, socketState } = context
   const [, setIsShowSNS] = isShowSNSState
+  const [signatureData] = signatureState
+  const [socket, setSocket] = socketState
+
+  const [snsData, setSNSData] = useState<{
+    discord: string
+    telegram: string
+  } | null>(null)
+
+  const socketDisconnect = useCallback(() => {
+    if (socket) {
+      socket.offAny()
+      socket.disconnect()
+      setSocket(undefined)
+    }
+  }, [socket])
+
+  const getData = async () => {
+    if (!signatureData)
+      throw new Error('useDMTPKeyPair must be used before useSNS')
+    try {
+      const resSNS = await ApiServices.getSNS(
+        APIKey,
+        signatureData.signature,
+        signatureData.message
+      )
+      setSNSData(resSNS.data.data as any)
+      const client = io('http://35.77.41.240', {
+        transports: ['websocket'],
+        autoConnect: false,
+        reconnectionAttempts: 0,
+        reconnection: true,
+        auth: {
+          api_key: APIKey,
+          signature: signatureData.signature,
+          message: signatureData.message
+        },
+        path: '/socket.io'
+      })
+      client.connect()
+
+      client.on('connect', () => {
+        console.log('DMTP SDK Connected')
+      })
+      client.on('connect_error', (err) => {
+        console.error(`DMTP SDK connect_error due to ${err.message}`)
+      })
+
+      client.on('reconnect', () => {
+        console.log('DMTP SDK reconnect')
+      })
+
+      client.on('disconnect', (reason) => {
+        console.log('DMTP SDK disconnect', reason)
+      })
+      setSocket(client)
+    } catch (error) {
+      console.error(`DMTP SDK get sns data: ${error.message}`)
+      setSNSData(null)
+    }
+  }
+
+  const verifyTelegram = async (otp: string) => {
+    if (!signatureData)
+      throw new Error('useDMTPKeyPair must be used before useSNS')
+    try {
+      const res = await ApiServices.verifyTelegram(
+        APIKey,
+        signatureData.signature,
+        signatureData.message,
+        otp
+      )
+      if (res.data.data) {
+        await getData()
+      }
+    } catch (error) {}
+  }
+
+  useEffect(() => {
+    if (socket) socketListen('sns', setSNSData)
+    return () => {
+      removeAllListeners('sns')
+    }
+  }, [socket])
+
+  useEffect(() => {
+    setSNSData(null)
+    if (signatureData) {
+      getData()
+    }
+    window.addEventListener('online', () => {
+      if (signatureData) {
+        getData()
+      }
+    })
+    window.addEventListener('offline', () => {
+      socketDisconnect()
+    })
+    return () => {
+      socketDisconnect()
+    }
+  }, [APIKey, signatureData])
+
+  const socketListen = useCallback(
+    (event: string, listener: (...args: any[]) => void) => {
+      if (socket) {
+        socket.on(event, listener)
+      }
+    },
+    [socket]
+  )
+
+  const removeAllListeners = useCallback(
+    (eventName: string) => {
+      if (socket) {
+        socket.removeAllListeners(eventName)
+      }
+    },
+    [socket]
+  )
+
   return {
     show: () => setIsShowSNS(true),
     hide: () => setIsShowSNS(false),
-    snsData: {
-      discord: {
-        id: '123456789'
-      },
-      telegram: {
-        id: '123456789'
-      }
-    }
+    snsData,
+    verifyTelegram
   }
 }
 
@@ -144,7 +260,7 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { dmtpKeyPairState, APIKey,signatureState } = context
+  const { dmtpKeyPairState, APIKey, signatureState } = context
   const [dmtpKeyPair] = dmtpKeyPairState
   const [signatureData] = signatureState
   return async (message: string, to_address: string) => {
@@ -160,23 +276,23 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
           )
           const messageDataEncrypt = MessageDMTP.encryptMessage(
             {
-              message
+              content: `<p class="whitespace-pre-line break-all">${message}</p>`,
+              images: []
             },
             sharedKey
           )
           if (signatureData) {
             const resSendMessage = await ApiServices.sendMessage(
               {
-                message: messageDataEncrypt,
+                message_data: messageDataEncrypt,
                 to_address
               },
               APIKey,
               `${signatureData.signature}`,
               `${signatureData.message}`
             )
-          if (onSuccess) onSuccess(resSendMessage.data.data)
-          }else throw new Error(`useDMTPKeyPair before send message`)
-         
+            if (onSuccess) onSuccess(resSendMessage.data.data)
+          } else throw new Error(`useDMTPKeyPair before send message`)
         } else throw new Error(`useDMTPKeyPair before send message`)
       } else {
         throw new Error(`${to_address} is not registered`)
