@@ -7,8 +7,9 @@ import { DMTPProvider } from 'dmtp-sdk-react'
 
 ReactDOM.render(
   <DMTPProvider
-    redirect_uri_telegram='http://0.0.0.0:3000'
-    APIKey='dmtp5aa8ea842bfa805046442827a8d624164143ea74'
+    isDev
+    redirect_uri_telegram='http://127.0.0.1:3000'
+    APIKey='dmtpe07bb247485d796e8eb9a7b8f1fcbe0b9eac3e85'
   >
     <App />
   </DMTPProvider>,

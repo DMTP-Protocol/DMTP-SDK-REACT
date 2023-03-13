@@ -9,101 +9,209 @@ const getOrCreateDMTPKeyPair = async ({
   setDMTPKeyPair,
   APIKey,
   signMessageAsync,
-  signatureState
+  signatureState,
+  isDev
 }: any) => {
   try {
-    try {
-      const [, setSignatureData] = signatureState
+    const [signatureData, setSignatureData] = signatureState
+    let signDataPayload = {
+      sign: '',
+      address: ''
+    }
+    if (!signatureData) {
+      signDataPayload = await signMessageAsync()
+    } else {
+      signDataPayload.address = signatureData.message
+      signDataPayload.sign = signatureData.signature
+    }
+    const { address, sign } = signDataPayload
+    if (isDev)
+      console.log(
+        `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] Start get key pair from DMTP with address: ${address}`
+      )
+    const res = await ApiServices.getKeyPair(APIKey, address)
+    const result = res.data.data
+    if (result) {
+      const { private_key, public_key } = result as any
 
-      const { sign, address } = await signMessageAsync()
-
-      const res = await ApiServices.getKeyPair(APIKey, address)
-      const result = res.data.data
-      if (result) {
-        const { private_key, public_key } = result as any
-        setDMTPKeyPair({
-          privateKey: KeyPairDMTP.decryptDMTPPrivateKey(private_key, `${sign}`),
-          publicKey: public_key
-        })
-      } else {
-        const keyPair = KeyPairDMTP.generateNewDMTPKeyPair()
-        await ApiServices.submitKeyPair(
-          {
-            private_key: KeyPairDMTP.encryptDMTPPrivateKey(
-              `${sign}`,
-              keyPair.DMTP_privateKey
-            ),
-            public_key: keyPair.DMTP_publicKey
-          },
-          APIKey,
-          `${sign}`,
-          address
-        )
-        setDMTPKeyPair({
-          privateKey: keyPair.DMTP_privateKey,
-          publicKey: keyPair.DMTP_publicKey
-        })
+      const payload = {
+        privateKey: KeyPairDMTP.decryptDMTPPrivateKey(private_key, `${sign}`),
+        publicKey: public_key
       }
-      setSignatureData({
-        signature: sign,
-        message: address
+      setDMTPKeyPair(payload)
+      if (isDev)
+        console.log(
+          `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] Get key pair from DMTP success: ${JSON.stringify(
+            payload
+          )}`
+        )
+    } else {
+      const keyPair = KeyPairDMTP.generateNewDMTPKeyPair()
+      if (isDev)
+        console.log(
+          `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] Not found key pair , generate new: ${JSON.stringify(
+            keyPair
+          )}`
+        )
+      await ApiServices.submitKeyPair(
+        {
+          private_key: KeyPairDMTP.encryptDMTPPrivateKey(
+            `${sign}`,
+            keyPair.DMTP_privateKey
+          ),
+          public_key: keyPair.DMTP_publicKey
+        },
+        APIKey,
+        `${sign}`,
+        address
+      )
+      setDMTPKeyPair({
+        privateKey: keyPair.DMTP_privateKey,
+        publicKey: keyPair.DMTP_publicKey
       })
-    } catch (error) {}
-  } catch (err) {
-    console.error(err)
+      if (isDev)
+        console.log(
+          `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] submit new key pair on DMTP: ${JSON.stringify(
+            keyPair
+          )}`
+        )
+    }
+    setSignatureData({
+      signature: sign,
+      message: address
+    })
+    localStorage.setItem('dmtp-signature', sign)
+    localStorage.setItem('dmtp-message', address)
+  } catch (error) {
+    if (isDev)
+      console.error(
+        `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] error: ${error}`
+      )
   }
 }
 
 const useSignMessage = () => {
-  return {
-    signMessageAsync: async () => {
-      const provider = new ethers.providers.Web3Provider(
-        (window as any).ethereum
-      )
-      const signer = provider.getSigner()
-      const address = await (await signer.getAddress()).toLowerCase()
-      const signature = await signer.signMessage(address)
-      return {
-        sign: signature,
-        address
-      }
-    }
-  }
-}
-
-const useAccount = () => {
-  const [address, setAddress] = useState(null)
-  useEffect(() => {
-    setAddress((window as any).ethereum.selectedAddress)
-    ;(window as any).ethereum.on('accountsChanged', function (accounts: any) {
-      if (accounts && accounts.length > 0) setAddress(accounts[0])
-    })
-  }, [])
-  return {
-    address
-  }
-}
-
-const useDMTPKeyPair = (existDMTPPrivateKey?: string) => {
   const context = useContext(DMTPContext)
   if (context === undefined) {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { dmtpKeyPairState, APIKey, signatureState } = context
+  const { isDev } = context
+  return {
+    signMessageAsync: async (): Promise<{
+      sign: string
+      address: string
+    }> => {
+      try {
+        const provider = new ethers.providers.Web3Provider(
+          (window as any).ethereum
+        )
+        const signer = provider.getSigner()
+        const address = await (await signer.getAddress()).toLowerCase()
+        if (isDev)
+          console.log(
+            `[DMTP SDK][useSignMessage][signMessageAsync] Sign message with address: ${address}`
+          )
+
+        const signature = await signer.signMessage(address)
+        if (isDev)
+          console.log(
+            `[DMTP SDK][useSignMessage][signMessageAsync] Sign message result with signature: ${signature}`
+          )
+        return {
+          sign: signature,
+          address
+        }
+      } catch (error) {
+        if (isDev)
+          console.error(
+            `[DMTP SDK][useSignMessage][signMessageAsync] error: ${error}`
+          )
+        throw new Error(error)
+      }
+    }
+  }
+}
+
+const useAccount = (): string | undefined => {
+  const [address, setAddress] = useState<string | undefined>(undefined)
+  const ethereum = (window as any).ethereum
+
+  const getSelectedAddress = async () => {
+    const provider = new ethers.providers.Web3Provider((window as any).ethereum)
+    const signer = provider.getSigner()
+    const address = await signer.getAddress()
+    setAddress(address)
+  }
+
+  useEffect(() => {
+    if (window && ethereum) {
+      getSelectedAddress()
+      ethereum.on('accountsChanged', function (accounts: any) {
+        if (accounts && accounts.length > 0) setAddress(accounts[0])
+      })
+    }
+  }, [window, ethereum])
+
+  return address
+}
+
+const useDMTPKeyPair = () => {
+  const context = useContext(DMTPContext)
+  if (context === undefined) {
+    throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
+  }
+
+  const { dmtpKeyPairState, APIKey, signatureState, isDev } = context
   const [dmtpKeyPair, setDMTPKeyPair] = dmtpKeyPairState
 
   const { signMessageAsync } = useSignMessage() as any
-  const { address } = useAccount()
+  const address = useAccount()
+
+  const getLocalSignatureAndMessage = async () => {
+    const signFromLocal = localStorage.getItem('dmtp-signature')
+    const addressFromLocal = localStorage.getItem('dmtp-message')
+    if (signFromLocal && addressFromLocal && address) {
+      const addressRecover = ethers.utils.verifyMessage(
+        addressFromLocal,
+        signFromLocal
+      )
+      if (
+        addressRecover.toLowerCase() == address.toLowerCase() &&
+        addressFromLocal.toLowerCase() == address.toLowerCase()
+      ) {
+        const [, setSignatureData] = signatureState
+        setSignatureData({
+          signature: signFromLocal,
+          message: addressFromLocal
+        })
+        const res = await ApiServices.getKeyPair(APIKey, address)
+        const result = res.data.data
+        if (result) {
+          const { private_key, public_key } = result as any
+
+          const payload = {
+            privateKey: KeyPairDMTP.decryptDMTPPrivateKey(
+              private_key,
+              `${signFromLocal}`
+            ),
+            publicKey: public_key
+          }
+          setDMTPKeyPair(payload)
+          if (isDev)
+            console.log(
+              `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] Get key pair from DMTP success: ${JSON.stringify(
+                payload
+              )}`
+            )
+        }
+      }
+    }
+  }
 
   useEffect(() => {
-    if (existDMTPPrivateKey) {
-      setDMTPKeyPair({
-        privateKey: existDMTPPrivateKey,
-        publicKey: dmtpKeyPair?.publicKey || ''
-      })
-    }
-  }, [existDMTPPrivateKey])
+    getLocalSignatureAndMessage()
+  }, [address])
 
   return {
     DMTPpublicKey: `${dmtpKeyPair?.publicKey}`,
@@ -113,7 +221,8 @@ const useDMTPKeyPair = (existDMTPPrivateKey?: string) => {
         APIKey,
         wallet_address: `${address}`.toLowerCase(),
         signMessageAsync,
-        signatureState
+        signatureState,
+        isDev
       })
   }
 }
@@ -124,7 +233,7 @@ const useSNS = () => {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { isShowSNSState, APIKey, signatureState, socketState } = context
+  const { isShowSNSState, APIKey, signatureState, socketState, isDev } = context
   const [, setIsShowSNS] = isShowSNSState
   const [signatureData] = signatureState
   const [socket, setSocket] = socketState
@@ -143,15 +252,21 @@ const useSNS = () => {
   }, [socket])
 
   const getData = async () => {
-    if (!signatureData)
-      throw new Error('useDMTPKeyPair must be used before useSNS')
+    if (!signatureData) return
     try {
+      if (isDev) console.info(`[DMTP SDK][useSNS][snsData] Start get SNS data`)
       const resSNS = await ApiServices.getSNS(
         APIKey,
         signatureData.signature,
         signatureData.message
       )
       setSNSData(resSNS.data.data as any)
+      if (isDev)
+        console.info(
+          `[DMTP SDK][useSNS][snsData] Get SNS data success: ${JSON.stringify(
+            resSNS.data.data
+          )}`
+        )
       const client = io('http://35.77.41.240', {
         transports: ['websocket'],
         autoConnect: false,
@@ -167,29 +282,36 @@ const useSNS = () => {
       client.connect()
 
       client.on('connect', () => {
-        console.log('DMTP SDK Connected')
+        if (isDev)
+          console.info(`[DMTP SDK][useSNS][snsData] DMTP SDK Connected`)
       })
       client.on('connect_error', (err) => {
-        console.error(`DMTP SDK connect_error due to ${err.message}`)
+        if (isDev)
+          console.error(
+            `[DMTP SDK][useSNS][snsData] DMTP SDK connect_error due to ${err.message}`
+          )
       })
 
       client.on('reconnect', () => {
-        console.log('DMTP SDK reconnect')
+        if (isDev)
+          console.warn(`[DMTP SDK][useSNS][snsData] DMTP SDK reconnect`)
       })
 
       client.on('disconnect', (reason) => {
-        console.log('DMTP SDK disconnect', reason)
+        if (isDev)
+          console.warn(
+            `[DMTP SDK][useSNS][snsData] DMTP SDK disconnect: ${reason}`
+          )
       })
       setSocket(client)
     } catch (error) {
-      console.error(`DMTP SDK get sns data: ${error.message}`)
+      if (isDev) console.error(`[DMTP SDK][useSNS][snsData] error: ${error}`)
       setSNSData(null)
     }
   }
 
   const verifyTelegram = async (otp: string) => {
-    if (!signatureData)
-      throw new Error('useDMTPKeyPair must be used before useSNS')
+    if (!signatureData) return
     try {
       const res = await ApiServices.verifyTelegram(
         APIKey,
@@ -200,11 +322,20 @@ const useSNS = () => {
       if (res.data.data) {
         await getData()
       }
-    } catch (error) {}
+      if (isDev)
+        console.info(`[DMTP SDK][useSNS][verifyTelegram] verify success`)
+    } catch (error) {
+      if (isDev)
+        console.error(`[DMTP SDK][useSNS][verifyTelegram] error: ${error}`)
+    }
   }
 
   useEffect(() => {
-    if (socket) socketListen('sns', setSNSData)
+    if (socket)
+      socketListen('sns', (payload) => {
+        console.info(`[DMTP SDK][useSNS][socket] sns: ${payload}`)
+        setSNSData(payload)
+      })
     return () => {
       removeAllListeners('sns')
     }

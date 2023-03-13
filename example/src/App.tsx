@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useDMTPKeyPair, useSendMessage, useSNS } from 'dmtp-sdk-react'
 import 'dmtp-sdk-react/dist/index.css'
@@ -6,9 +6,19 @@ import 'dmtp-sdk-react/dist/index.css'
 const App = () => {
   const { DMTPpublicKey, getDMTPKeyPair } = useDMTPKeyPair()
   const sendMessage = useSendMessage()
-  const { show, hide } = useSNS()
+  const { show, hide, verifyTelegram, snsData } = useSNS()
 
-  const [message, setMessage] = React.useState('Hi')
+  useEffect(() => {
+    if (window && DMTPpublicKey) {
+      const query = new URLSearchParams(window.location.search)
+      const telegramCode = query.get('code')
+      if (telegramCode) {
+        verifyTelegram(telegramCode)
+      }
+    }
+  }, [DMTPpublicKey, window])
+
+  const [message, setMessage] = useState('Hi')
   const [toAddress, setToAddress] = React.useState(
     '0x62636ffd17bb80b1a7c177e5f45d774a1ee0d228'
   )
@@ -41,6 +51,8 @@ const App = () => {
       </button>
       <p />
       <h3>useSNS</h3>
+      <div>Telegram: {snsData?.telegram}</div>
+      <div>Discord: {snsData?.discord}</div>
       <button onClick={show}>Show SNS</button>
       <p />
       <button onClick={hide}>Hide SNS</button>

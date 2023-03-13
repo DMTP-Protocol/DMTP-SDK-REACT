@@ -28,6 +28,7 @@ interface DMTPContextProps {
     >
   ]
   APIKey: string
+  isDev: boolean
   isShowSNSState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
   socketState: [
     Socket | undefined,
@@ -38,6 +39,7 @@ const defaultDMTPContext: DMTPContextProps = {
   dmtpKeyPairState: [null, () => {}],
   signatureState: [null, () => {}],
   APIKey: '',
+  isDev: false,
   isShowSNSState: [false, () => {}],
   socketState: [undefined, () => {}]
 }
@@ -46,10 +48,12 @@ const DMTPContext = React.createContext<DMTPContextProps>(defaultDMTPContext)
 export const DMTPProvider = ({
   children,
   APIKey,
-  redirect_uri_telegram
+  redirect_uri_telegram,
+  isDev = false
 }: {
   APIKey: string
   redirect_uri_telegram: string
+  isDev: boolean
   children: React.ReactNode
 }) => {
   const dmtpKeyPairState = useState<{
@@ -72,7 +76,8 @@ export const DMTPProvider = ({
         APIKey,
         signatureState,
         isShowSNSState,
-        socketState
+        socketState,
+        isDev
       }}
     >
       {children}
