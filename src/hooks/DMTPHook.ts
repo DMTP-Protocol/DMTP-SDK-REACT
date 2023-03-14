@@ -138,10 +138,14 @@ const useAccount = (): string | undefined => {
   const ethereum = (window as any).ethereum
 
   const getSelectedAddress = async () => {
-    const provider = new ethers.providers.Web3Provider((window as any).ethereum)
-    const signer = provider.getSigner()
-    const address = await signer.getAddress()
-    setAddress(address)
+    try {
+      const provider = new ethers.providers.Web3Provider(
+        (window as any).ethereum
+      )
+      const signer = provider.getSigner()
+      const address = await signer.getAddress()
+      setAddress(address)
+    } catch (error) {}
   }
 
   useEffect(() => {
@@ -176,11 +180,11 @@ const useDMTPKeyPair = () => {
         addressFromLocal,
         signFromLocal
       )
+      const [, setSignatureData] = signatureState
       if (
         addressRecover.toLowerCase() == address.toLowerCase() &&
         addressFromLocal.toLowerCase() == address.toLowerCase()
       ) {
-        const [, setSignatureData] = signatureState
         setSignatureData({
           signature: signFromLocal,
           message: addressFromLocal
@@ -205,6 +209,9 @@ const useDMTPKeyPair = () => {
               )}`
             )
         }
+      } else {
+        setSignatureData(null)
+        setDMTPKeyPair(null)
       }
     }
   }
