@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react'
 
-import { useDMTPKeyPair, useSendMessage, useSNS } from 'dmtp-sdk-react'
+import { useConnectDMTP, useSendMessage, useSNS } from 'dmtp-sdk-react'
 import 'dmtp-sdk-react/dist/index.css'
 
 const App = () => {
-  const { DMTPpublicKey, getDMTPKeyPair } = useDMTPKeyPair()
+  const { isConnectDMTP, connectDMTP } = useConnectDMTP()
   const sendMessage = useSendMessage()
   const { show, hide, verifyTelegram, snsData } = useSNS()
 
   useEffect(() => {
-    if (window && DMTPpublicKey) {
+    if (window && isConnectDMTP) {
       const query = new URLSearchParams(window.location.search)
       const telegramCode = query.get('code')
       if (telegramCode) {
         verifyTelegram(telegramCode)
       }
     }
-  }, [DMTPpublicKey, window])
+  }, [isConnectDMTP, window])
 
   const [message, setMessage] = useState('Hi')
   const [toAddress, setToAddress] = React.useState(
@@ -32,8 +32,8 @@ const App = () => {
       <h1>DMTP SDK</h1>
       <p />
       <h3>useDMTPKeyPair</h3>
-      <div>DMTPpublicKey: {DMTPpublicKey}</div>
-      <button onClick={() => getDMTPKeyPair()}>getDMTPKeyPair</button>
+      <div>DMTPpublicKey: {isConnectDMTP}</div>
+      <button onClick={() => connectDMTP()}>connect DMTP</button>
       <p />
       <h3>useSendMessage</h3>
       <input

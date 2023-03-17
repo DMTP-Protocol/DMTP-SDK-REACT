@@ -62,7 +62,7 @@ const ApiServices = {
       params: { address }
     }),
   getSNS: (api_key: string, signature: string, message: string) =>
-    AxiosGet('sns', {
+    AxiosGet<any>('sns', {
       headers: {
         signature,
         message,

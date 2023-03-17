@@ -160,7 +160,7 @@ const useAccount = (): string | undefined => {
   return address
 }
 
-const useDMTPKeyPair = () => {
+const useConnectDMTP = () => {
   const context = useContext(DMTPContext)
   if (context === undefined) {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
@@ -221,8 +221,8 @@ const useDMTPKeyPair = () => {
   }, [address])
 
   return {
-    DMTPpublicKey: `${dmtpKeyPair?.publicKey}`,
-    getDMTPKeyPair: () =>
+    isConnectDMTP: !!dmtpKeyPair?.publicKey,
+    connectDMTP: () =>
       getOrCreateDMTPKeyPair({
         setDMTPKeyPair,
         APIKey,
@@ -246,8 +246,8 @@ const useSNS = () => {
   const [socket, setSocket] = socketState
 
   const [snsData, setSNSData] = useState<{
-    discord: string
-    telegram: string
+    discord: boolean
+    telegram: boolean
   } | null>(null)
 
   const socketDisconnect = useCallback(() => {
@@ -267,7 +267,10 @@ const useSNS = () => {
         signatureData.signature,
         signatureData.message
       )
-      setSNSData(resSNS.data.data as any)
+      setSNSData({
+        discord: !!resSNS.data.data.discord,
+        telegram: !!resSNS.data.data.telegram
+      })
       if (isDev)
         console.info(
           `[DMTP SDK][useSNS][snsData] Get SNS data success: ${JSON.stringify(
@@ -341,7 +344,10 @@ const useSNS = () => {
     if (socket)
       socketListen('sns', (payload) => {
         console.info(`[DMTP SDK][useSNS][socket] sns: ${payload}`)
-        setSNSData(payload)
+        setSNSData({
+          discord: !!payload.discord,
+          telegram: !!payload.telegram
+        })
       })
     return () => {
       removeAllListeners('sns')
@@ -441,4 +447,4 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
   }
 }
 
-export { useDMTPKeyPair, useSNS, useSendMessage }
+export { useConnectDMTP, useSNS, useSendMessage }
