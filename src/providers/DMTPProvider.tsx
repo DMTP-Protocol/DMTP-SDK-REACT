@@ -82,7 +82,7 @@ export const DMTPProvider = ({
     >
       {children}
       {isShowSNSState[0] && (
-        <DmtpSNS redirect_uri_telegram={redirect_uri_telegram} />
+        <DmtpSNS isDev={isDev} redirect_uri_telegram={redirect_uri_telegram} />
       )}
     </DMTPContext.Provider>
   )

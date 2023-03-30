@@ -1,9 +1,11 @@
 import * as React from 'react'
 
 export const DmtpSNS = ({
-  redirect_uri_telegram = ''
+  redirect_uri_telegram = '',
+  isDev = false
 }: {
   redirect_uri_telegram: string
+  isDev: boolean
 }) => {
   const redirect_uri_telegram_base64 = Buffer.from(
     redirect_uri_telegram
@@ -20,6 +22,14 @@ export const DmtpSNS = ({
   const is_link_telegram = false
   const is_link_discord = false
 
+  const telegramLink = `https://t.me/${
+    isDev ? 'dmtp_dev_bot' : 'dmtp_bot'
+  }?start=${redirect_uri_telegram_base64}`
+
+  const discordLink = `https://discord.com/api/oauth2/authorize?client_id=1034407375186169909&redirect_uri=${
+    isDev ? 'http://18.181.234.171' : 'https://dmtp.tech'
+  }/discord-connect&response_type=code&scope=identify`
+
   return (
     <div>
       <p />
@@ -30,12 +40,7 @@ export const DmtpSNS = ({
         ) : (
           <button
             onClick={() => {
-              window.open(
-                `https://t.me/dmtp_dev_bot?start=${Buffer.from(
-                  redirect_uri_telegram
-                ).toString('base64')}`,
-                '_blank'
-              )
+              window.open(telegramLink, '_blank')
             }}
           >
             Connect
@@ -50,10 +55,7 @@ export const DmtpSNS = ({
         ) : (
           <button
             onClick={() => {
-              window.open(
-                `https://discord.com/api/oauth2/authorize?client_id=1034407375186169909&redirect_uri=http%3A%2F%2F18.181.234.171&response_type=code&scope=identify`,
-                '_blank'
-              )
+              window.open(discordLink, '_blank')
             }}
           >
             Connect
