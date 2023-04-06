@@ -9,11 +9,11 @@
 DMTP SDK for React
 <p>
 <div align="center">
-  <a href="https://www.npmjs.com/package/wagmi">
-    <img src="https://img.shields.io/npm/v/wagmi?colorA=21262d&colorB=161b22&style=flat" alt="Version">
+  <a href="https://www.npmjs.com/package/dmtp-sdk-react">
+    <img src="https://img.shields.io/npm/v/dmtp-sdk-react?colorA=21262d&colorB=161b22&style=flat" alt="Version">
   </a>
   <a href="https://www.npmjs.com/package/wagmi">
-    <img src="https://img.shields.io/npm/dm/wagmi?colorA=21262d&colorB=161b22&style=flat" alt="Downloads per month">
+    <img src="https://img.shields.io/npm/dm/dmtp-sdk-react?colorA=21262d&colorB=161b22&style=flat" alt="Downloads per month">
   </a>
 </div>
 
