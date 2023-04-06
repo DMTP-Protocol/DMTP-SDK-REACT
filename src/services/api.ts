@@ -54,22 +54,40 @@ const ApiServices = {
         api_key
       }
     }),
-  getKeyPair: (api_key: string, signature: string, message: string) =>
+  getKeyPair: (api_key: string, address: string) =>
     AxiosGet('key-pair', {
+      headers: {
+        api_key
+      },
+      params: { address }
+    }),
+  getSNS: (api_key: string, signature: string, message: string) =>
+    AxiosGet<any>('sns', {
       headers: {
         signature,
         message,
         api_key
       }
     }),
-  getSNS: (api_key: string, signature: string, message: string) =>
-    AxiosGet('sns', {
-      headers: {
-        signature,
-        message,
-        api_key
+  verifyTelegram: (
+    api_key: string,
+    signature: string,
+    message: string,
+    otp: string
+  ) =>
+    AxiosPost(
+      'verify-telegram',
+      {
+        otp
+      },
+      {
+        headers: {
+          signature,
+          message,
+          api_key
+        }
       }
-    })
+    )
 }
 
 export default ApiServices

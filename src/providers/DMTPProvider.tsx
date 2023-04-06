@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { DmtpSNS } from '../components/DMTPComponent'
+import { Socket } from 'socket.io-client'
 
 interface DMTPContextProps {
   dmtpKeyPairState: [
@@ -27,19 +28,32 @@ interface DMTPContextProps {
     >
   ]
   APIKey: string
+  isDev: boolean
+  isShowSNSState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+  socketState: [
+    Socket | undefined,
+    React.Dispatch<React.SetStateAction<Socket | undefined>>
+  ]
 }
-export const defaultDMTPContext: DMTPContextProps = {
+const defaultDMTPContext: DMTPContextProps = {
   dmtpKeyPairState: [null, () => {}],
   signatureState: [null, () => {}],
-  APIKey: ''
+  APIKey: '',
+  isDev: false,
+  isShowSNSState: [false, () => {}],
+  socketState: [undefined, () => {}]
 }
 const DMTPContext = React.createContext<DMTPContextProps>(defaultDMTPContext)
 
 export const DMTPProvider = ({
   children,
-  APIKey
+  APIKey,
+  redirect_uri_telegram,
+  isDev = false
 }: {
   APIKey: string
+  redirect_uri_telegram: string
+  isDev: boolean
   children: React.ReactNode
 }) => {
   const dmtpKeyPairState = useState<{
@@ -52,16 +66,24 @@ export const DMTPProvider = ({
     message: string
   } | null>(null)
 
+  const isShowSNSState = useState<boolean>(false)
+  const socketState = useState<Socket | undefined>(undefined)
+
   return (
     <DMTPContext.Provider
       value={{
         dmtpKeyPairState,
         APIKey,
-        signatureState
+        signatureState,
+        isShowSNSState,
+        socketState,
+        isDev
       }}
     >
       {children}
-      <DmtpSNS text='DMTP SNS : Link Telegram , Discord' />
+      {isShowSNSState[0] && (
+        <DmtpSNS isDev={isDev} redirect_uri_telegram={redirect_uri_telegram} />
+      )}
     </DMTPContext.Provider>
   )
 }
