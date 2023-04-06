@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./example/public/DMTP.png">
-    <img alt="dmtp logo" src="./example/public/DMTP.png" width="auto" height="60">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/DMTProtocol/DMTP-SDK-REACT/cffea3b19f830994790c5587c35d373e288fac64/example/public/DMTP.png?token=GHSAT0AAAAAAB4IRGRYW7HYJDY6L6ACV3NAZBOPTQA">
+    <img alt="dmtp logo" src="https://raw.githubusercontent.com/DMTProtocol/DMTP-SDK-REACT/cffea3b19f830994790c5587c35d373e288fac64/example/public/DMTP.png?token=GHSAT0AAAAAAB4IRGRYW7HYJDY6L6ACV3NAZBOPTQA" width="auto" height="60">
   </picture>
 </p>
 
@@ -12,7 +12,7 @@ DMTP SDK for React
   <a href="https://www.npmjs.com/package/dmtp-sdk-react">
     <img src="https://img.shields.io/npm/v/dmtp-sdk-react?colorA=21262d&colorB=161b22&style=flat" alt="Version">
   </a>
-  <a href="https://www.npmjs.com/package/wagmi">
+  <a href="https://www.npmjs.com/package/dmtp-sdk-react">
     <img src="https://img.shields.io/npm/dm/dmtp-sdk-react?colorA=21262d&colorB=161b22&style=flat" alt="Downloads per month">
   </a>
 </div>
