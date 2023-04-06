@@ -1,8 +1,7 @@
 import * as React from 'react'
 
 export const DmtpSNS = ({
-  redirect_uri_telegram = '',
-  isDev = false
+  redirect_uri_telegram = ''
 }: {
   redirect_uri_telegram: string
   isDev: boolean
@@ -22,13 +21,9 @@ export const DmtpSNS = ({
   const is_link_telegram = false
   const is_link_discord = false
 
-  const telegramLink = `https://t.me/${
-    isDev ? 'dmtp_dev_bot' : 'dmtp_bot'
-  }?start=${redirect_uri_telegram_base64}`
+  const telegramLink = `https://t.me/dmtp_bot?start=${redirect_uri_telegram_base64}`
 
-  const discordLink = `https://discord.com/api/oauth2/authorize?client_id=1034407375186169909&redirect_uri=${
-    isDev ? 'http://18.181.234.171' : 'https://dmtp.tech'
-  }/discord-connect&response_type=code&scope=identify`
+  const discordLink = `https://discord.com/api/oauth2/authorize?client_id=1034407375186169909&redirect_uri=https://dmtp.tech/discord-connect&response_type=code&scope=identify`
 
   return (
     <div>
