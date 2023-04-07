@@ -127,7 +127,7 @@ const useSignMessage = () => {
           console.error(
             `[DMTP SDK][useSignMessage][signMessageAsync] error: ${error}`
           )
-        throw new Error(error)
+        throw error
       }
     }
   }
