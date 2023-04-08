@@ -1,5 +1,5 @@
+/* eslint-disable camelcase */
 import React, { useState } from 'react'
-import { DmtpSNS } from '../components/DMTPComponent'
 import { Socket } from 'socket.io-client'
 
 interface DMTPContextProps {
@@ -48,11 +48,9 @@ const DMTPContext = React.createContext<DMTPContextProps>(defaultDMTPContext)
 export const DMTPProvider = ({
   children,
   APIKey,
-  redirect_uri_telegram,
   isDev = false
 }: {
   APIKey: string
-  redirect_uri_telegram: string
   isDev: boolean
   children: React.ReactNode
 }) => {
@@ -81,9 +79,6 @@ export const DMTPProvider = ({
       }}
     >
       {children}
-      {isShowSNSState[0] && (
-        <DmtpSNS isDev={isDev} redirect_uri_telegram={redirect_uri_telegram} />
-      )}
     </DMTPContext.Provider>
   )
 }

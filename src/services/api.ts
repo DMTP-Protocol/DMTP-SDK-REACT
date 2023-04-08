@@ -5,7 +5,9 @@ type SuccessResponse<T> = {
   message: string
   success: boolean
 }
-const BASE_URL = 'http://35.77.41.240:3001/sdk/'
+// const BASE_URL = 'http://127.0.0.1:3001/sdk/'
+// const BASE_URL = 'http://35.77.41.240/sdk/'
+const BASE_URL = 'https://dev.dmtp.tech/sdk/'
 
 const axios = new Axios({
   baseURL: BASE_URL,
@@ -36,9 +38,7 @@ const ApiServices = {
   ) =>
     AxiosPost('submit-key-pair', payload, {
       headers: {
-        signature,
-        message,
-        api_key
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
   sendMessage: (
@@ -49,9 +49,7 @@ const ApiServices = {
   ) =>
     AxiosPost('send-message', payload, {
       headers: {
-        signature,
-        message,
-        api_key
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
   getKeyPair: (api_key: string, address: string) =>
@@ -64,9 +62,7 @@ const ApiServices = {
   getSNS: (api_key: string, signature: string, message: string) =>
     AxiosGet<any>('sns', {
       headers: {
-        signature,
-        message,
-        api_key
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
   verifyTelegram: (
@@ -82,9 +78,7 @@ const ApiServices = {
       },
       {
         headers: {
-          signature,
-          message,
-          api_key
+          payload: `${message}:${signature}:${api_key}`
         }
       }
     )

@@ -42,10 +42,7 @@ import App from './App'
 import { DMTPProvider } from 'dmtp-sdk-react'
 
 ReactDOM.render(
-  <DMTPProvider
-    redirect_uri_telegram='http://127.0.0.1:3000'
-    APIKey='dmtp_api_key'
-  >
+  <DMTPProvider APIKey='dmtp_api_key'>
     <App />
   </DMTPProvider>,
   document.getElementById('root')
@@ -111,7 +108,7 @@ const Message = () => {
 - `connectDMTP()` before `useSNS`
 
 ```tsx
-import { useSNS } from 'dmtp-sdk-react'
+import { useSNS, DmtpSNS } from 'dmtp-sdk-react'
 
 const SNS = () => {
   const { show, hide, verifyTelegram, snsData } = useSNS()
@@ -130,6 +127,7 @@ const SNS = () => {
   return (
     <>
       <h3>useSNS</h3>
+      <DmtpSNS redirect_uri_telegram='http://127.0.0.1:3000' />
       <div>Telegram: {snsData?.telegram}</div>
       <div>Discord: {snsData?.discord}</div>
       <button onClick={show}>Show SNS</button>
