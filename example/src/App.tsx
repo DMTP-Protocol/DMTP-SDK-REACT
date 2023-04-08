@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { useConnectDMTP, useSendMessage, useSNS } from 'dmtp-sdk-react'
-import 'dmtp-sdk-react/dist/index.css'
+import { DmtpSNS, useConnectDMTP, useSendMessage, useSNS } from 'dmtp-sdk-react'
 
 const App = () => {
   const { isConnectDMTP, connectDMTP } = useConnectDMTP()
@@ -51,6 +50,7 @@ const App = () => {
       </button>
       <p />
       <h3>useSNS</h3>
+      <DmtpSNS redirect_uri_telegram='http://127.0.0.1:3000' />
       <div>Telegram: {snsData?.telegram}</div>
       <div>Discord: {snsData?.discord}</div>
       <button onClick={show}>Show SNS</button>

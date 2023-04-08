@@ -1,6 +1,6 @@
 {
   "name": "dmtp-sdk-react",
-  "version": "0.8.1",
+  "version": "1.0.0",
   "description": "DMTP sdk for react",
   "author": "dmtp",
   "license": "MIT",
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
+    "start": "ENV=dev && microbundle-crl watch --no-compress --format modern,cjs",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
@@ -63,10 +63,13 @@
   ],
   "dependencies": {
     "axios": "^0.27.2",
+    "bootstrap": "^5.2.3",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
     "ethers": "5.4.5",
     "keccak256": "^1.0.6",
+    "react-bootstrap": "^2.7.2",
+    "react-icons": "^4.8.0",
     "socket.io-client": "^4.5.3"
   }
 }
