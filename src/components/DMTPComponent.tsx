@@ -10,6 +10,8 @@ import { IoCheckmarkCircle } from 'react-icons/io5'
 import Stack from 'react-bootstrap/Stack'
 import { useAccount, useSNS } from '../hooks/DMTPHook'
 import DMTPContext from '../providers/DMTPProvider'
+import { Buffer } from 'buffer'
+(window as any).Buffer = Buffer;
 
 export const DmtpSNS = ({
   redirect_uri_telegram = ''
@@ -17,7 +19,7 @@ export const DmtpSNS = ({
   redirect_uri_telegram: string
 }) => {
   const {
-    isShowSNSState: [show, setShow],
+    isShowSNSState: [show, setShow]
   } = React.useContext(DMTPContext)
 
   const handleClose = () => setShow(false)
