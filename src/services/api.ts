@@ -5,8 +5,6 @@ type SuccessResponse<T> = {
   message: string
   success: boolean
 }
-// const BASE_URL = 'http://127.0.0.1:3001/sdk/'
-// const BASE_URL = 'http://35.77.41.240/sdk/'
 const BASE_URL = 'https://dev.dmtp.tech/sdk/'
 
 const axios = new Axios({

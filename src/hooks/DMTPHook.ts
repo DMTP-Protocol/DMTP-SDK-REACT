@@ -278,7 +278,7 @@ const useSNS = () => {
           )}`
         )
       const client = io(
-        isDev ? 'http://35.77.41.240' : 'https://dev.dmtp.tech',
+        'https://dev.dmtp.tech',
         {
           transports: ['websocket'],
           autoConnect: false,

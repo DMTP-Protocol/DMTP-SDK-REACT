@@ -51,7 +51,7 @@ export const DMTPProvider = ({
   isDev = false
 }: {
   APIKey: string
-  isDev: boolean
+  isDev?: boolean
   children: React.ReactNode
 }) => {
   const dmtpKeyPairState = useState<{
