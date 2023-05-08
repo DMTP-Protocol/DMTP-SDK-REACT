@@ -1,6 +1,6 @@
 {
   "name": "dmtp-sdk-react",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "DMTP sdk for react",
   "author": "dmtp",
   "license": "MIT",
@@ -66,10 +66,11 @@
     "bootstrap": "^5.2.3",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
-    "ethers": "5.4.5",
+    "ethers": "5.5.0",
     "keccak256": "^1.0.6",
     "react-bootstrap": "^2.7.2",
     "react-icons": "^4.8.0",
-    "socket.io-client": "^4.5.3"
+    "socket.io-client": "^4.5.3",
+    "stream": "^0.0.2"
   }
 }

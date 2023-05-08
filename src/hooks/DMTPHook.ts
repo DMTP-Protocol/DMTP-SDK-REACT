@@ -296,21 +296,18 @@ const useSNS = () => {
             resSNS.data.data
           )}`
         )
-      const client = io(
-        isDev ? 'http://35.77.41.240' : 'https://dev.dmtp.tech',
-        {
-          transports: ['websocket'],
-          autoConnect: false,
-          reconnectionAttempts: 0,
-          reconnection: true,
-          auth: {
-            api_key: APIKey,
-            signature: signatureData.signature,
-            message: signatureData.message
-          },
-          path: '/socket.io'
-        }
-      )
+      const client = io('https://dev.dmtp.tech', {
+        transports: ['websocket'],
+        autoConnect: false,
+        reconnectionAttempts: 0,
+        reconnection: true,
+        auth: {
+          api_key: APIKey,
+          signature: signatureData.signature,
+          message: signatureData.message
+        },
+        path: '/socket.io'
+      })
       client.connect()
 
       client.on('connect', () => {

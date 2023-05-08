@@ -10,6 +10,8 @@ import { IoCheckmarkCircle } from 'react-icons/io5'
 import Stack from 'react-bootstrap/Stack'
 import { useAccount, useSNS } from '../hooks/DMTPHook'
 import DMTPContext from '../providers/DMTPProvider'
+import { Buffer } from 'buffer'
+;(window as any).Buffer = Buffer
 
 export const DmtpSNS = ({
   redirect_uri_telegram = ''
@@ -17,7 +19,7 @@ export const DmtpSNS = ({
   redirect_uri_telegram: string
 }) => {
   const {
-    isShowSNSState: [show, setShow],
+    isShowSNSState: [show, setShow]
   } = React.useContext(DMTPContext)
 
   const handleClose = () => setShow(false)
@@ -40,7 +42,7 @@ export const DmtpSNS = ({
 
   const telegramLink = `https://t.me/dmtp_bot?start=${redirect_uri_telegram_base64}`
 
-  const discordLink = `https://discord.com/api/oauth2/authorize?client_id=1034407375186169909&redirect_uri=https://dmtp.tech/discord-connect&response_type=code&scope=identify`
+  const discordLink = `https://discord.com/api/oauth2/authorize?client_id=857921785633570826&redirect_uri=https%3A%2F%2Fdmtp.tech%2Fdiscord-connect&response_type=code&scope=identify`
 
   return (
     <Modal show={show} onHide={handleClose}>
