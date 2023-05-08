@@ -28,6 +28,7 @@ interface DMTPContextProps {
     >
   ]
   APIKey: string
+  dappAddress: string
   isDev: boolean
   isShowSNSState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
   socketState: [
@@ -39,6 +40,7 @@ const defaultDMTPContext: DMTPContextProps = {
   dmtpKeyPairState: [null, () => {}],
   signatureState: [null, () => {}],
   APIKey: '',
+  dappAddress: '',
   isDev: false,
   isShowSNSState: [false, () => {}],
   socketState: [undefined, () => {}]
@@ -48,9 +50,11 @@ const DMTPContext = React.createContext<DMTPContextProps>(defaultDMTPContext)
 export const DMTPProvider = ({
   children,
   APIKey,
+  dappAddress,
   isDev = false
 }: {
   APIKey: string
+  dappAddress: string
   isDev: boolean
   children: React.ReactNode
 }) => {
@@ -72,6 +76,7 @@ export const DMTPProvider = ({
       value={{
         dmtpKeyPairState,
         APIKey,
+        dappAddress,
         signatureState,
         isShowSNSState,
         socketState,

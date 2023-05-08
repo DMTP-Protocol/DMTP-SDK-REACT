@@ -8,6 +8,7 @@ import { ethers } from 'ethers'
 const getOrCreateDMTPKeyPair = async ({
   setDMTPKeyPair,
   APIKey,
+  dappAddress,
   signMessageAsync,
   signatureState,
   isDev
@@ -75,6 +76,22 @@ const getOrCreateDMTPKeyPair = async ({
             keyPair
           )}`
         )
+    }
+    const checkFriendRes = await ApiServices.checkFriend(
+      APIKey,
+      address,
+      dappAddress
+    )
+    const isFriend = checkFriendRes.data.data
+    if (!isFriend) {
+      await ApiServices.addFriend(
+        {
+          dappAddress
+        },
+        APIKey,
+        `${sign}`,
+        address
+      )
     }
     setSignatureData({
       signature: sign,
@@ -166,7 +183,8 @@ const useConnectDMTP = () => {
     throw new Error('useDMTPKeyPair must be used within a DMTPProvider')
   }
 
-  const { dmtpKeyPairState, APIKey, signatureState, isDev } = context
+  const { dmtpKeyPairState, APIKey, dappAddress, signatureState, isDev } =
+    context
   const [dmtpKeyPair, setDMTPKeyPair] = dmtpKeyPairState
 
   const { signMessageAsync } = useSignMessage() as any
@@ -226,7 +244,8 @@ const useConnectDMTP = () => {
       getOrCreateDMTPKeyPair({
         setDMTPKeyPair,
         APIKey,
-        wallet_address: `${address}`.toLowerCase(),
+        // wallet_address: `${address}`.toLowerCase(),
+        dappAddress,
         signMessageAsync,
         signatureState,
         isDev

@@ -59,6 +59,24 @@ const ApiServices = {
       },
       params: { address }
     }),
+  checkFriend: (api_key: string, userAddress: string, dappAddress: string) =>
+    AxiosGet('check-friends', {
+      headers: {
+        api_key
+      },
+      params: { userAddress, dappAddress }
+    }),
+  addFriend: (
+    payload: any,
+    api_key: string,
+    signature: string,
+    message: string
+  ) =>
+    AxiosPost('add-friend', payload, {
+      headers: {
+        payload: `${message}:${signature}:${api_key}`
+      }
+    }),
   getSNS: (api_key: string, signature: string, message: string) =>
     AxiosGet<any>('sns', {
       headers: {
