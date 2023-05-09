@@ -47,7 +47,7 @@ import App from './App'
 import { DMTPProvider } from 'dmtp-sdk-react'
 
 ReactDOM.render(
-  <DMTPProvider APIKey='dmtp_api_key'>
+  <DMTPProvider APIKey='YOUR_DMTP_API_KEY' dappAddress='YOUR_DAPP_WALLET_ADDRESS>
     <App />
   </DMTPProvider>,
   document.getElementById('root')
@@ -56,10 +56,11 @@ ReactDOM.render(
 
 #### DMTPProvider Props
 
-| Props  | Type    | Description                         | Require | Default |
-| ------ | ------- | ----------------------------------- | ------- | ------- |
-| APIKey | string  | Apikey that was generated from dmtp | true    |         |
-| isDev  | boolean | Get all log from SDK                | false   | false   |
+| Props        | Type    | Description                                         | Require | Default |
+| ------------ | ------- | --------------------------------------------------- | ------- | ------- |
+| APIKey       | string  | Apikey that was generated from dmtp                 | true    |         |
+| dappAddress  | string  | A wallet address that will be friend with the users | true    |         |
+| isDev        | boolean | Get all log from SDK                                | false   | false   |
 
 ### useConnectDMTP
 
