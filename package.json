@@ -1,10 +1,10 @@
 {
   "name": "dmtp-sdk-react",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "DMTP sdk for react",
   "author": "dmtp",
   "license": "MIT",
-  "repository": "DMTProtocol/DMTP-SDK-REACT",
+  "repository": "DMTP-Protocol/DMTP-SDK-REACT",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",
