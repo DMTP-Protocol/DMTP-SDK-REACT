@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ipfs.dmtp.tech/ipfs/QmZPScJNbCu9SjCZwJRLcno6mprdctuddL2hk5BBDbGrE2">
-    <img alt="dmtp logo" src="https://ipfs.dmtp.tech/ipfs/QmZPScJNbCu9SjCZwJRLcno6mprdctuddL2hk5BBDbGrE2" width="auto" height="60">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/DMTP-Protocol/DMTP-SDK-REACT/assets/64068653/d7980ff3-3ed8-4a90-9f82-c37b5700a580">
+    <img alt="dmtp logo" src="https://github.com/DMTP-Protocol/DMTP-SDK-REACT/assets/64068653/d7980ff3-3ed8-4a90-9f82-c37b5700a580" width="auto" height="240">
   </picture>
 </p>
 
@@ -98,9 +98,9 @@ import { useSendMessage } from 'dmtp-sdk-react'
 const Message = () => {
   const sendMessage = useSendMessage()
 
-  const [message, setMessage] = useState('Hi')
+  const [message, setMessage] = useState('')
   const [toAddress, setToAddress] = React.useState(
-    '0x62636ffd17bb80b1a7c177e5f45d774a1ee0d228'
+    ''
   )
 
   return (
@@ -134,6 +134,8 @@ const Message = () => {
   | verifyTelegram | (otp: string) => Promise< void > | Verify with from url params when telegram bot open redirect url | | |
   | snsData | { discord: boolean; telegram: boolean; } \| null | The data of SNS from DMTP | | |
 
+Change `YOUR_WEBPAGE_URL`
+
 ```tsx
 import { useSNS, DmtpSNS } from 'dmtp-sdk-react'
 
@@ -154,7 +156,7 @@ const SNS = () => {
   return (
     <>
       <h3>useSNS</h3>
-      <DmtpSNS redirect_uri_telegram='http://127.0.0.1:3000' />
+      <DmtpSNS redirect_uri_telegram='YOUR_WEBPAGE_URL' />
       <div>Telegram: {snsData?.telegram}</div>
       <div>Discord: {snsData?.discord}</div>
       <button onClick={show}>Show SNS</button>
