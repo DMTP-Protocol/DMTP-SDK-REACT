@@ -30,14 +30,27 @@ const getOrCreateDMTPKeyPair = async ({
       console.log(
         `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] Start get key pair from DMTP with address: ${address}`
       )
+
+    await ApiServices.updateLoginInfo(
+      {
+        dappAddress
+      },
+      APIKey,
+      `${sign}`,
+      address
+    )
+
     const res = await ApiServices.getKeyPair(APIKey, address)
     const result = res.data.data
     if (result) {
-      const { private_key, public_key } = result as any
+      const { privateKeyResult, publicKeyResult } = result as any
 
       const payload = {
-        privateKey: KeyPairDMTP.decryptDMTPPrivateKey(private_key, `${sign}`),
-        publicKey: public_key
+        privateKey: KeyPairDMTP.decryptDMTPPrivateKey(
+          privateKeyResult,
+          `${sign}`
+        ),
+        publicKey: publicKeyResult
       }
       setDMTPKeyPair(payload)
       if (isDev)
@@ -200,8 +213,8 @@ const useConnectDMTP = () => {
       )
       const [, setSignatureData] = signatureState
       if (
-        addressRecover.toLowerCase() == address.toLowerCase() &&
-        addressFromLocal.toLowerCase() == address.toLowerCase()
+        addressRecover.toLowerCase() === address.toLowerCase() &&
+        addressFromLocal.toLowerCase() === address.toLowerCase()
       ) {
         setSignatureData({
           signature: signFromLocal,
@@ -210,14 +223,14 @@ const useConnectDMTP = () => {
         const res = await ApiServices.getKeyPair(APIKey, address)
         const result = res.data.data
         if (result) {
-          const { private_key, public_key } = result as any
+          const { privateKeyResult, publicKeyResult } = result as any
 
           const payload = {
             privateKey: KeyPairDMTP.decryptDMTPPrivateKey(
-              private_key,
+              privateKeyResult,
               `${signFromLocal}`
             ),
-            publicKey: public_key
+            publicKey: publicKeyResult
           }
           setDMTPKeyPair(payload)
           if (isDev)
@@ -429,16 +442,16 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
   const { dmtpKeyPairState, APIKey, signatureState } = context
   const [dmtpKeyPair] = dmtpKeyPairState
   const [signatureData] = signatureState
-  return async (message: string, to_address: string) => {
+  return async (message: string, toAddress: string) => {
     try {
-      const res = await ApiServices.getKeyPair(APIKey, to_address)
+      const res = await ApiServices.getKeyPair(APIKey, toAddress)
       const result = res.data.data
       if (result) {
-        const { public_key } = result as any
+        const { publicKey } = result as any
         if (dmtpKeyPair?.privateKey) {
           const sharedKey = KeyPairDMTP.getSharedKey(
             dmtpKeyPair.privateKey,
-            public_key
+            publicKey
           )
           const messageDataEncrypt = MessageDMTP.encryptMessage(
             {
@@ -451,7 +464,7 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
             const resSendMessage = await ApiServices.sendMessage(
               {
                 message_data: messageDataEncrypt,
-                to_address
+                toAddress
               },
               APIKey,
               `${signatureData.signature}`,
@@ -461,7 +474,7 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
           } else throw new Error(`useDMTPKeyPair before send message`)
         } else throw new Error(`useDMTPKeyPair before send message`)
       } else {
-        throw new Error(`${to_address} is not registered`)
+        throw new Error(`${toAddress} is not registered`)
       }
     } catch (error) {
       if (onError) onError(error)
