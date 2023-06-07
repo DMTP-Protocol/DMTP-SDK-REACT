@@ -6,6 +6,7 @@ type SuccessResponse<T> = {
   success: boolean
 }
 const BASE_URL = 'https://dev.dmtp.tech/sdk/'
+// const BASE_URL = 'http://35.77.41.240/sdk/'
 
 const axios = new Axios({
   baseURL: BASE_URL,
@@ -30,70 +31,70 @@ const AxiosGet = <O>(url: string, config?: AxiosRequestConfig) =>
 const ApiServices = {
   submitKeyPair: (
     payload: any,
-    apiKey: string,
+    api_key: string,
     signature: string,
     message: string
   ) =>
     AxiosPost('submit-key-pair', payload, {
       headers: {
-        payload: `${message}:${signature}:${apiKey}`
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
   sendMessage: (
     payload: any,
-    apiKey: string,
+    api_key: string,
     signature: string,
     message: string
   ) =>
     AxiosPost('send-message', payload, {
       headers: {
-        payload: `${message}:${signature}:${apiKey}`
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
-  getKeyPair: (apiKey: string, address: string) =>
+  getKeyPair: (api_key: string, address: string) =>
     AxiosGet('key-pair', {
       headers: {
-        apiKey
+        api_key
       },
       params: { address }
     }),
-  checkFriend: (apiKey: string, userAddress: string, dappAddress: string) =>
+  checkFriend: (api_key: string, userAddress: string, dappAddress: string) =>
     AxiosGet('check-friends', {
       headers: {
-        apiKey
+        api_key
       },
       params: { userAddress, dappAddress }
     }),
   addFriend: (
     payload: any,
-    apiKey: string,
+    api_key: string,
     signature: string,
     message: string
   ) =>
     AxiosPost('add-friend', payload, {
       headers: {
-        payload: `${message}:${signature}:${apiKey}`
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
   updateLoginInfo: (
     payload: any,
-    apiKey: string,
+    api_key: string,
     signature: string,
     message: string
   ) =>
     AxiosPost('update-login', payload, {
       headers: {
-        payload: `${message}:${signature}:${apiKey}`
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
-  getSNS: (apiKey: string, signature: string, message: string) =>
+  getSNS: (api_key: string, signature: string, message: string) =>
     AxiosGet<any>('sns', {
       headers: {
-        payload: `${message}:${signature}:${apiKey}`
+        payload: `${message}:${signature}:${api_key}`
       }
     }),
   verifyTelegram: (
-    apiKey: string,
+    api_key: string,
     signature: string,
     message: string,
     otp: string
@@ -105,7 +106,7 @@ const ApiServices = {
       },
       {
         headers: {
-          payload: `${message}:${signature}:${apiKey}`
+          payload: `${message}:${signature}:${api_key}`
         }
       }
     )

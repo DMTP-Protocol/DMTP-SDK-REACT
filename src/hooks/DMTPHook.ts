@@ -43,14 +43,11 @@ const getOrCreateDMTPKeyPair = async ({
     const res = await ApiServices.getKeyPair(APIKey, address)
     const result = res.data.data
     if (result) {
-      const { privateKeyResult, publicKeyResult } = result as any
+      const { private_key, public_key } = result as any
 
       const payload = {
-        privateKey: KeyPairDMTP.decryptDMTPPrivateKey(
-          privateKeyResult,
-          `${sign}`
-        ),
-        publicKey: publicKeyResult
+        privateKey: KeyPairDMTP.decryptDMTPPrivateKey(private_key, `${sign}`),
+        publicKey: public_key
       }
       setDMTPKeyPair(payload)
       if (isDev)
@@ -120,6 +117,14 @@ const getOrCreateDMTPKeyPair = async ({
   }
 }
 
+const getProvider = () => {
+  if (typeof window !== 'undefined' && (window as any).ethereum) {
+    return new ethers.providers.Web3Provider((window as any).ethereum)
+  } else {
+    return null // Or return fallback provider here
+  }
+}
+
 const useSignMessage = () => {
   const context = useContext(DMTPContext)
   if (context === undefined) {
@@ -133,9 +138,10 @@ const useSignMessage = () => {
       address: string
     }> => {
       try {
-        const provider = new ethers.providers.Web3Provider(
-          (window as any).ethereum
-        )
+        const provider = getProvider()
+        if (!provider) {
+          throw new Error('Provider not found')
+        }
         const signer = provider.getSigner()
         const address = await (await signer.getAddress()).toLowerCase()
         if (isDev)
@@ -163,29 +169,37 @@ const useSignMessage = () => {
   }
 }
 
+const getEthereum = () => {
+  if (typeof window !== 'undefined' && (window as any).ethereum) {
+    return (window as any).ethereum
+  } else {
+    return null
+  }
+}
+
 const useAccount = (): string | undefined => {
   const [address, setAddress] = useState<string | undefined>(undefined)
-  const ethereum = (window as any).ethereum
+  const ethereum = getEthereum()
 
   const getSelectedAddress = async () => {
     try {
-      const provider = new ethers.providers.Web3Provider(
-        (window as any).ethereum
-      )
-      const signer = provider.getSigner()
-      const address = await signer.getAddress()
-      setAddress(address)
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum)
+        const signer = provider.getSigner()
+        const address = await signer.getAddress()
+        setAddress(address)
+      }
     } catch (error) {}
   }
 
   useEffect(() => {
-    if (window && ethereum) {
+    if (ethereum) {
       getSelectedAddress()
       ethereum.on('accountsChanged', function (accounts: any) {
         if (accounts && accounts.length > 0) setAddress(accounts[0])
       })
     }
-  }, [window, ethereum])
+  }, [ethereum])
 
   return address
 }
@@ -213,8 +227,8 @@ const useConnectDMTP = () => {
       )
       const [, setSignatureData] = signatureState
       if (
-        addressRecover.toLowerCase() === address.toLowerCase() &&
-        addressFromLocal.toLowerCase() === address.toLowerCase()
+        addressRecover.toLowerCase() == address.toLowerCase() &&
+        addressFromLocal.toLowerCase() == address.toLowerCase()
       ) {
         setSignatureData({
           signature: signFromLocal,
@@ -223,14 +237,14 @@ const useConnectDMTP = () => {
         const res = await ApiServices.getKeyPair(APIKey, address)
         const result = res.data.data
         if (result) {
-          const { privateKeyResult, publicKeyResult } = result as any
+          const { private_key, public_key } = result as any
 
           const payload = {
             privateKey: KeyPairDMTP.decryptDMTPPrivateKey(
-              privateKeyResult,
+              private_key,
               `${signFromLocal}`
             ),
-            publicKey: publicKeyResult
+            publicKey: public_key
           }
           setDMTPKeyPair(payload)
           if (isDev)
@@ -391,21 +405,35 @@ const useSNS = () => {
 
   useEffect(() => {
     setSNSData(null)
+
     if (signatureData) {
       getData()
     }
-    window.addEventListener('online', () => {
+
+    const handleOnline = () => {
       if (signatureData) {
         getData()
       }
-    })
-    window.addEventListener('offline', () => {
+    }
+
+    const handleOffline = () => {
       socketDisconnect()
-    })
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleOnline)
+      window.addEventListener('offline', handleOffline)
+    }
+
     return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', handleOnline)
+        window.removeEventListener('offline', handleOffline)
+      }
       socketDisconnect()
     }
   }, [APIKey, signatureData])
+
 
   const socketListen = useCallback(
     (event: string, listener: (...args: any[]) => void) => {
@@ -442,16 +470,16 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
   const { dmtpKeyPairState, APIKey, signatureState } = context
   const [dmtpKeyPair] = dmtpKeyPairState
   const [signatureData] = signatureState
-  return async (message: string, toAddress: string) => {
+  return async (message: string, to_address: string) => {
     try {
-      const res = await ApiServices.getKeyPair(APIKey, toAddress)
+      const res = await ApiServices.getKeyPair(APIKey, to_address)
       const result = res.data.data
       if (result) {
-        const { publicKey } = result as any
+        const { public_key } = result as any
         if (dmtpKeyPair?.privateKey) {
           const sharedKey = KeyPairDMTP.getSharedKey(
             dmtpKeyPair.privateKey,
-            publicKey
+            public_key
           )
           const messageDataEncrypt = MessageDMTP.encryptMessage(
             {
@@ -464,7 +492,7 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
             const resSendMessage = await ApiServices.sendMessage(
               {
                 message_data: messageDataEncrypt,
-                toAddress
+                to_address
               },
               APIKey,
               `${signatureData.signature}`,
@@ -474,7 +502,7 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
           } else throw new Error(`useDMTPKeyPair before send message`)
         } else throw new Error(`useDMTPKeyPair before send message`)
       } else {
-        throw new Error(`${toAddress} is not registered`)
+        throw new Error(`${to_address} is not registered`)
       }
     } catch (error) {
       if (onError) onError(error)

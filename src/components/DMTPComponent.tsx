@@ -10,8 +10,7 @@ import { IoCheckmarkCircle } from 'react-icons/io5'
 import Stack from 'react-bootstrap/Stack'
 import { useAccount, useSNS } from '../hooks/DMTPHook'
 import DMTPContext from '../providers/DMTPProvider'
-import { Buffer } from 'buffer'
-;(window as any).Buffer = Buffer
+import { Buffer as ImportedBuffer } from 'buffer'
 
 export const DmtpSNS = ({
   redirect_uri_telegram = ''
@@ -21,6 +20,14 @@ export const DmtpSNS = ({
   const {
     isShowSNSState: [show, setShow]
   } = React.useContext(DMTPContext)
+
+  let Buffer
+  if (typeof window !== 'undefined') {
+    ;(window as any).Buffer = ImportedBuffer
+    Buffer = (window as any).Buffer
+  } else {
+    Buffer = ImportedBuffer
+  }
 
   const handleClose = () => setShow(false)
   const redirect_uri_telegram_base64 = Buffer.from(
@@ -78,7 +85,9 @@ export const DmtpSNS = ({
                       <Button
                         size='sm'
                         onClick={() => {
-                          window.open(telegramLink, '_blank')
+                          if (typeof window !== 'undefined') {
+                            window.open(telegramLink, '_blank')
+                          }
                         }}
                         style={{ backgroundColor: '#6559f5' }}
                       >
@@ -111,7 +120,9 @@ export const DmtpSNS = ({
                     <Button
                       size='sm'
                       onClick={() => {
-                        window.open(discordLink, '_blank')
+                        if (typeof window !== 'undefined') {
+                          window.open(discordLink, '_blank')
+                        }
                       }}
                       style={{ backgroundColor: '#6559f5' }}
                     >
