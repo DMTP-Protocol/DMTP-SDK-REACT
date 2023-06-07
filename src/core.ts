@@ -1,5 +1,6 @@
 import { AES, enc } from 'crypto-js'
 import keccak256 from 'keccak256'
+import { Buffer } from 'buffer'
 const { createECDH } = require('crypto-browserify')
 
 class MessageDMTP {
@@ -40,13 +41,11 @@ class KeyPairDMTP {
       DMTP_privateKey: client.getPrivateKey('hex'),
       DMTP_publicKey: client.getPublicKey('hex')
     }
-
-   
   }
 
-  public static encryptDMTPPrivateKey (signature: string, text: string) {
-    return AES.encrypt(text, keccak256(signature).toString('hex')).toString();
-  };
+  public static encryptDMTPPrivateKey(signature: string, text: string) {
+    return AES.encrypt(text, keccak256(signature).toString('hex')).toString()
+  }
 
   public static getSharedKey(
     senderPrivateKey: string,
