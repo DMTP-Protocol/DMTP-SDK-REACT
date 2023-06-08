@@ -114,6 +114,7 @@ const getOrCreateDMTPKeyPair = async ({
       console.error(
         `[DMTP SDK][useDMTPKeyPair][getDMTPKeyPair] error: ${error}`
       )
+    throw error
   }
 }
 
@@ -189,7 +190,10 @@ const useAccount = (): string | undefined => {
         const address = await signer.getAddress()
         setAddress(address)
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
   }
 
   useEffect(() => {
@@ -366,6 +370,7 @@ const useSNS = () => {
     } catch (error) {
       if (isDev) console.error(`[DMTP SDK][useSNS][snsData] error: ${error}`)
       setSNSData(null)
+      throw error
     }
   }
 
@@ -386,6 +391,7 @@ const useSNS = () => {
     } catch (error) {
       if (isDev)
         console.error(`[DMTP SDK][useSNS][verifyTelegram] error: ${error}`)
+      throw error
     }
   }
 
@@ -433,7 +439,6 @@ const useSNS = () => {
       socketDisconnect()
     }
   }, [APIKey, signatureData])
-
 
   const socketListen = useCallback(
     (event: string, listener: (...args: any[]) => void) => {
@@ -506,6 +511,7 @@ const useSendMessage = (onSuccess?: Function, onError?: Function) => {
       }
     } catch (error) {
       if (onError) onError(error)
+      throw error
     }
   }
 }

@@ -15,7 +15,7 @@ const App = () => {
         verifyTelegram(telegramCode)
       }
     }
-  }, [isConnectDMTP, window])
+  }, [isConnectDMTP, verifyTelegram])
 
   const [message, setMessage] = useState('Hi')
   const [toAddress, setToAddress] = React.useState(
