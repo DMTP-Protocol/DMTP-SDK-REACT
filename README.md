@@ -39,6 +39,7 @@ yarn add dmtp-sdk-react
 ## Quick Start
 
 ### Setup DMTPProvider
+#### React
 
 ```tsx
 import React from 'react'
@@ -46,12 +47,39 @@ import ReactDOM from 'react-dom'
 import App from './App'
 import { DMTPProvider } from 'dmtp-sdk-react'
 
+// You must import bootstrap here　if you use useSNS function
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 ReactDOM.render(
   <DMTPProvider APIKey='YOUR_DMTP_API_KEY' dappAddress='YOUR_DAPP_WALLET_ADDRESS>
     <App />
   </DMTPProvider>,
   document.getElementById('root')
 )
+```
+
+#### Next.js
+
+```tsx
+import type { AppProps } from "next/app";
+import { DMTPProvider } from "dmtp-sdk-react";
+
+// You must import bootstrap here　if you use useSNS function
+import "bootstrap/dist/css/bootstrap.min.css";
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+      <DMTPProvider
+        ?isDev
+        APIKey="YOUR_DMTP_API_KEY"
+        dappAddress="YOUR_DAPP_WALLET_ADDRESS"
+      >
+          <Component {...pageProps} />
+      </DMTPProvider>
+  );
+}
+
+export default MyApp;
 ```
 
 #### DMTPProvider Props
