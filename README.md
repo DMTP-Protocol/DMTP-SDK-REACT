@@ -47,7 +47,7 @@ import ReactDOM from 'react-dom'
 import App from './App'
 import { DMTPProvider } from 'dmtp-sdk-react'
 
-// You must import bootstrap here
+// You must import bootstrap here　if you use useSNS function
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 ReactDOM.render(
@@ -59,19 +59,12 @@ ReactDOM.render(
 ```
 
 #### Next.js
-```bash
-npm install bootstrap
-```
-or
-```bash
-yarn add bootstrap
-```
 
 ```tsx
 import type { AppProps } from "next/app";
 import { DMTPProvider } from "dmtp-sdk-react";
 
-// You must import bootstrap here
+// You must import bootstrap here　if you use useSNS function
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
