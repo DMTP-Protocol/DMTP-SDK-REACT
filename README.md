@@ -47,6 +47,9 @@ import ReactDOM from 'react-dom'
 import App from './App'
 import { DMTPProvider } from 'dmtp-sdk-react'
 
+// You must import bootstrap here
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 ReactDOM.render(
   <DMTPProvider APIKey='YOUR_DMTP_API_KEY' dappAddress='YOUR_DAPP_WALLET_ADDRESS>
     <App />
